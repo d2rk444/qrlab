@@ -141,19 +141,6 @@ qr-lab/
 - FileReader API para leitura de arquivos pequenos
 - TextEncoder para cálculo em bytes UTF-8
 
-## Publicar no GitHub Pages
-
-1. Crie um novo repositório no GitHub.
-2. Envie os arquivos `index.html` e `README.md` para a branch principal.
-3. Acesse `Settings`.
-4. Vá em `Pages`.
-5. Em `Build and deployment`, selecione:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/root`
-6. Salve.
-7. Aguarde o GitHub gerar o link público do projeto.
-
 ## Observações importantes
 
 - O projeto roda totalmente no navegador.
