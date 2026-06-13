@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QR Lab</title>
+<meta name="theme-color" content="#ffffff" />
+<script>
+(function(){
+  const saved = localStorage.getItem('qrLabTheme') || 'system';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+</script>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#ffffff;
+  --card:#ffffff;
+  --soft:#f6f6f6;
+  --input:#ffffff;
+  --text:#111111;
+  --muted:#666666;
+  --line:#e5e5e5;
+  --strong:#000000;
+  --accent:#111111;
+  --accentText:#ffffff;
+  --ok:#1f7a3f;
+  --warn:#a36400;
+  --bad:#b3261e;
+  --radius:16px;
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#020202;
+  --card:#080808;
+  --soft:#111111;
+  --input:#050505;
+  --text:#f2f2f2;
+  --muted:#9a9a9a;
+  --line:#202020;
+  --strong:#ffffff;
+  --accent:#f2f2f2;
+  --accentText:#030303;
+  --ok:#69d990;
+  --warn:#e0a44c;
+  --bad:#ff6b62;
+}
+@media (prefers-color-scheme:dark){
+  html[data-theme="system"]{
+    color-scheme:dark;
+    --bg:#020202;
+    --card:#080808;
+    --soft:#111111;
+    --input:#050505;
+    --text:#f2f2f2;
+    --muted:#9a9a9a;
+    --line:#202020;
+    --strong:#ffffff;
+    --accent:#f2f2f2;
+    --accentText:#030303;
+    --ok:#69d990;
+    --warn:#e0a44c;
+    --bad:#ff6b62;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  line-height:1.45;
+}
+button,input,select,textarea{font:inherit}
+.app{max-width:1080px;margin:0 auto;padding:28px 16px 44px}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand{display:flex;flex-direction:column;gap:6px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:700}
+h1{font-size:clamp(32px,5vw,56px);line-height:.95;margin:0;letter-spacing:-.055em;font-weight:850}
+.subtitle{max-width:650px;margin:0;color:var(--muted);font-size:15px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.iconButton,.ghostButton,.primaryButton{
+  min-height:40px;
+  border-radius:999px;
+  padding:9px 14px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:700;
+  font-size:13px;
+}
+.iconButton:hover,.ghostButton:hover{background:var(--soft)}
+.primaryButton{background:var(--accent);color:var(--accentText);border-color:var(--accent)}
+.primaryButton:disabled,.ghostButton:disabled{opacity:.45;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:1fr .95fr;gap:16px}
+.card{border:1px solid var(--line);background:var(--card);border-radius:var(--radius);padding:18px}
+.cardTitle{margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--soft);padding:5px;border-radius:14px;margin-bottom:16px}
+.tabs button{border:0;border-radius:10px;padding:10px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}
+.tabs button.active{background:var(--card);color:var(--text);border:1px solid var(--line)}
+label{display:block;margin:12px 0 7px;color:var(--muted);font-size:13px;font-weight:650}
+input,select,textarea{width:100%;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:12px;padding:11px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--muted)}
+textarea{min-height:180px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.hint,.small{color:var(--muted);font-size:12px;margin:7px 0 0}
+.notice{border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:12px;color:var(--muted);font-size:13px}
+.drop{border:1px dashed var(--muted);background:var(--input);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.drag{background:var(--soft)}
+.dropTitle{font-weight:800;color:var(--text)}
+.dropSub{font-size:12px;color:var(--muted);margin-top:4px}
+.fileName{font-size:13px;color:var(--muted);margin-top:10px;word-break:break-word}
+.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.metric{border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px}
+.metric span{display:block;color:var(--muted);font-size:12px}
+.metric b{font-size:16px;color:var(--strong)}
+.bar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:.2s}
+.status{font-size:13px;color:var(--muted);margin-top:10px}
+.status.ok{color:var(--ok)}
+.status.warn{color:var(--warn)}
+.status.bad{color:var(--bad)}
+.preview{min-height:470px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center}
+.qrBox{width:min(100%,420px);aspect-ratio:1;border:1px solid var(--line);border-radius:18px;background:var(--card);display:flex;align-items:center;justify-content:center;padding:20px}
+.placeholder{color:var(--muted);font-size:14px}
+#qrMount canvas{width:100%;height:100%;image-rendering:pixelated}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.badge{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:750;color:var(--muted)}
+details{margin-top:16px}summary{cursor:pointer;color:var(--text);font-weight:800}.tableWrap{overflow:auto;max-height:310px;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{position:sticky;top:0;background:var(--soft)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.top{flex-direction:column}.actions{justify-content:flex-start}.three{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.two,.three,.metrics{grid-template-columns:1fr}.app{padding:20px 12px}.card{padding:15px}.qrBox{padding:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="kicker">QR Lab</div>
+      <h1 data-i18n="title">Gerador de QR Code</h1>
+      <p class="subtitle" data-i18n="subtitle">Crie QR Codes para texto ou arquivos pequenos. A página calcula a capacidade, escolhe a menor versão possível e bloqueia arquivos acima do limite.</p>
+    </div>
+    <div class="actions">
+      <button class="iconButton" id="languageButton" type="button" onclick="toggleLanguage()">EN</button>
+      <button class="iconButton" id="themeButton" type="button" onclick="toggleTheme()">Tema escuro</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <p class="cardTitle" data-i18n="inputTitle">Entrada</p>
+      <div class="tabs" role="tablist" aria-label="Tipo de entrada">
+        <button id="tabText" class="active" type="button" onclick="setInputMode('text')" data-i18n="tabText">Texto</button>
+        <button id="tabFile" type="button" onclick="setInputMode('file')" data-i18n="tabFile">Arquivo pequeno</button>
+      </div>
+
+      <div id="textPanel">
+        <label for="textValue" data-i18n="textLabel">Conteúdo do QR Code</label>
+        <textarea id="textValue" data-placeholder="textPlaceholder" placeholder="Digite uma URL, texto, token, contato simples, Wi-Fi ou configuração leve."></textarea>
+      </div>
+
+      <div id="filePanel" style="display:none">
+        <div class="notice" data-i18n="fileNotice">Somente arquivos pequenos são aceitos. O limite muda conforme a versão e o nível de correção escolhidos. Recomendado: TXT, CSV, JSON, SVG pequeno ou configurações leves.</div>
+        <label for="fileMaxView" data-i18n="maxUploadLabel">Tamanho máximo do arquivo</label>
+        <input id="fileMaxView" readonly value="—" />
+        <div class="drop" id="drop" onclick="fileInput.click()">
+          <div class="dropTitle" data-i18n="dropTitle">Selecionar arquivo</div>
+          <div class="dropSub" data-i18n="dropSub">Clique ou arraste um arquivo pequeno para embutir no QR Code.</div>
+        </div>
+        <input type="file" id="fileInput" hidden />
+        <div class="fileName" id="fileName"></div>
+      </div>
+
+      <div class="three">
+        <div>
+          <label for="ec" data-i18n="ecLabel">Correção de erro</label>
+          <select id="ec">
+            <option value="L" data-i18n="ecL">L — baixa, mais capacidade</option>
+            <option value="M" selected data-i18n="ecM">M — média, recomendado</option>
+            <option value="Q" data-i18n="ecQ">Q — alta</option>
+            <option value="H" data-i18n="ecH">H — máxima, menos capacidade</option>
+          </select>
+        </div>
+        <div>
+          <label for="version" data-i18n="versionLabel">Versão</label>
+          <select id="version"><option value="0" data-i18n="autoVersion">Auto</option></select>
+        </div>
+        <div>
+          <label for="px" data-i18n="sizeLabel">Tamanho PNG</label>
+          <select id="px">
+            <option value="256">256 px</option>
+            <option value="384" selected>384 px</option>
+            <option value="512">512 px</option>
+            <option value="768">768 px</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="two">
+        <div>
+          <label for="dark" data-i18n="darkColorLabel">Cor do QR</label>
+          <input type="color" id="dark" value="#111111" />
+        </div>
+        <div>
+          <label for="light" data-i18n="lightColorLabel">Cor do fundo</label>
+          <input type="color" id="light" value="#ffffff" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="primaryButton" id="btnGenerate" type="button" onclick="generate()" data-i18n="generateButton">Gerar QR</button>
+        <button class="ghostButton" id="btnDownload" type="button" onclick="downloadQR()" disabled data-i18n="downloadButton">Baixar PNG</button>
+        <button class="ghostButton" type="button" onclick="clearAll()" data-i18n="clearButton">Limpar</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><span data-i18n="metricBytes">Bytes</span><b id="mBytes">0</b></div>
+        <div class="metric"><span data-i18n="metricVersion">Versão</span><b id="mVersion">—</b></div>
+        <div class="metric"><span data-i18n="metricModules">Módulos</span><b id="mModules">—</b></div>
+        <div class="metric"><span data-i18n="metricUse">Uso</span><b id="mUse">0%</b></div>
+      </div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <aside class="card preview">
+      <div class="qrBox"><div id="qrMount" class="placeholder" data-i18n="preview">Pré-visualização</div></div>
+      <div class="badges">
+        <span class="badge" id="bMode">Modo: —</span>
+        <span class="badge" id="bEc">EC: M</span>
+        <span class="badge" id="bCap">Capacidade: —</span>
+      </div>
+      <p class="small" data-i18n="recommendation">Para melhor leitura, mantenha margem clara e use EC M ou Q. Use EC L apenas quando precisar de mais capacidade.</p>
+    </aside>
+  </main>
+
+  <section class="card" style="margin-top:16px">
+    <p class="cardTitle" data-i18n="referenceTitle">Referência</p>
+    <div class="notice" data-i18n="mathNote">Fórmula: módulos por lado = 4 × versão + 17. A versão vai de 1 a 40. A escolha automática usa a menor versão cuja capacidade seja suficiente para o conteúdo em bytes.</div>
+    <details>
+      <summary data-i18n="tableSummary">Ver tabela de capacidade em bytes</summary>
+      <div class="tableWrap" id="capTable"></div>
+    </details>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+const BYTE_CAPS={
+  L:[17,32,53,78,106,134,154,192,230,271,321,367,425,458,520,586,644,718,792,858,929,1003,1091,1171,1273,1367,1465,1528,1628,1732,1840,1952,2068,2188,2303,2431,2563,2699,2809,2953],
+  M:[14,26,42,62,84,106,122,152,180,213,251,287,331,362,412,450,504,560,624,666,711,779,857,911,997,1059,1125,1190,1264,1370,1452,1538,1628,1722,1809,1911,1989,2099,2213,2331],
+  Q:[11,20,32,46,60,74,86,108,130,151,177,203,241,258,292,322,364,394,442,482,509,565,611,661,715,751,805,868,908,982,1030,1112,1168,1228,1283,1351,1423,1499,1579,1663],
+  H:[7,14,24,34,44,58,64,84,98,119,137,155,177,194,220,250,280,310,338,382,403,439,461,511,535,593,625,658,698,742,790,842,898,958,983,1051,1093,1139,1219,1273]
+};
+const I18N={
+  pt:{
+    lang:'pt-BR', languageButton:'EN', darkTheme:'Tema escuro', lightTheme:'Tema claro',
+    title:'Gerador de QR Code', subtitle:'Crie QR Codes para texto ou arquivos pequenos. A página calcula a capacidade, escolhe a menor versão possível e bloqueia arquivos acima do limite.',
+    inputTitle:'Entrada', tabText:'Texto', tabFile:'Arquivo pequeno', textLabel:'Conteúdo do QR Code', textPlaceholder:'Digite uma URL, texto, token, contato simples, Wi-Fi ou configuração leve.',
+    fileNotice:'Somente arquivos pequenos são aceitos. O limite muda conforme a versão e o nível de correção escolhidos. Recomendado: TXT, CSV, JSON, SVG pequeno ou configurações leves.',
+    maxUploadLabel:'Tamanho máximo do arquivo', dropTitle:'Selecionar arquivo', dropSub:'Clique ou arraste um arquivo pequeno para embutir no QR Code.',
+    ecLabel:'Correção de erro', ecL:'L — baixa, mais capacidade', ecM:'M — média, recomendado', ecQ:'Q — alta', ecH:'H — máxima, menos capacidade',
+    versionLabel:'Versão', autoVersion:'Auto', sizeLabel:'Tamanho PNG', darkColorLabel:'Cor do QR', lightColorLabel:'Cor do fundo',
+    generateButton:'Gerar QR', downloadButton:'Baixar PNG', clearButton:'Limpar', metricBytes:'Bytes', metricVersion:'Versão', metricModules:'Módulos', metricUse:'Uso',
+    preview:'Pré-visualização', recommendation:'Para melhor leitura, mantenha margem clara e use EC M ou Q. Use EC L apenas quando precisar de mais capacidade.',
+    referenceTitle:'Referência', mathNote:'Fórmula: módulos por lado = 4 × versão + 17. A versão vai de 1 a 40. A escolha automática usa a menor versão cuja capacidade seja suficiente para o conteúdo em bytes.',
+    tableSummary:'Ver tabela de capacidade em bytes', mode:'Modo', capacity:'Capacidade', numeric:'Numérico', alnum:'Alfanumérico', byte:'Byte/UTF-8',
+    idleText:'Digite o conteúdo para gerar.', idleFile:'Selecione um arquivo pequeno.', ready:'Pronto para gerar. Versão ajustada automaticamente.',
+    dense:'QR muito denso. Pode funcionar, mas para melhor leitura reduza dados, use EC L ou escolha uma versão maior.',
+    tooLarge:'Conteúdo acima do limite da versão/correção selecionada. Reduza o conteúdo, use EC L ou escolha versão Auto.',
+    maxApprox:'Máximo aproximado', autoUntil:'auto até V40', selected:'Selecionado', rejected:'Arquivo recusado', currentMax:'máximo atual', version:'versão', modules:'Módulos'
+  },
+  en:{
+    lang:'en', languageButton:'PT', darkTheme:'Dark theme', lightTheme:'Light theme',
+    title:'QR Code Generator', subtitle:'Create QR Codes for text or small files. The page calculates capacity, selects the smallest possible version and blocks files above the limit.',
+    inputTitle:'Input', tabText:'Text', tabFile:'Small file', textLabel:'QR Code content', textPlaceholder:'Type a URL, text, token, simple contact, Wi-Fi data or light configuration.',
+    fileNotice:'Only small files are accepted. The limit changes according to the selected version and error correction level. Recommended: TXT, CSV, JSON, small SVG or light configuration files.',
+    maxUploadLabel:'Maximum file size', dropTitle:'Select file', dropSub:'Click or drag a small file to embed it in the QR Code.',
+    ecLabel:'Error correction', ecL:'L — low, more capacity', ecM:'M — medium, recommended', ecQ:'Q — high', ecH:'H — maximum, less capacity',
+    versionLabel:'Version', autoVersion:'Auto', sizeLabel:'PNG size', darkColorLabel:'QR color', lightColorLabel:'Background color',
+    generateButton:'Generate QR', downloadButton:'Download PNG', clearButton:'Clear', metricBytes:'Bytes', metricVersion:'Version', metricModules:'Modules', metricUse:'Usage',
+    preview:'Preview', recommendation:'For better scanning, keep a clear quiet zone and use EC M or Q. Use EC L only when you need more capacity.',
+    referenceTitle:'Reference', mathNote:'Formula: modules per side = 4 × version + 17. Versions go from 1 to 40. Automatic selection uses the smallest version with enough byte capacity for the content.',
+    tableSummary:'Show byte capacity table', mode:'Mode', capacity:'Capacity', numeric:'Numeric', alnum:'Alphanumeric', byte:'Byte/UTF-8',
+    idleText:'Type content to generate.', idleFile:'Select a small file.', ready:'Ready to generate. Version adjusted automatically.',
+    dense:'QR is very dense. It may work, but for better scanning reduce data, use EC L or choose a larger version.',
+    tooLarge:'Content is above the selected version/error correction limit. Reduce content, use EC L or choose Auto version.',
+    maxApprox:'Approximate maximum', autoUntil:'auto up to V40', selected:'Selected', rejected:'File rejected', currentMax:'current maximum', version:'version', modules:'Modules'
+  }
+};
+const enc=new TextEncoder();
+const $=id=>document.getElementById(id);
+let inputMode='text';
+let filePayload='';
+let selectedFileName='';
+let currentCanvas=null;
+let lang=localStorage.getItem('qrLabLang')||((navigator.language||'pt').toLowerCase().startsWith('pt')?'pt':'en');
+function t(key){return (I18N[lang]&&I18N[lang][key])||I18N.pt[key]||key}
+function systemTheme(){return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function activeTheme(){const mode=document.documentElement.getAttribute('data-theme')||'system';return mode==='system'?systemTheme():mode}
+function setTheme(mode,save=true){document.documentElement.setAttribute('data-theme',mode);if(save)localStorage.setItem('qrLabTheme',mode);updateThemeButton()}
+function toggleTheme(){setTheme(activeTheme()==='dark'?'light':'dark')}
+function updateThemeButton(){
+  const isDark=activeTheme()==='dark';
+  $('themeButton').textContent=isDark?t('lightTheme'):t('darkTheme');
+  $('themeButton').setAttribute('aria-label',isDark?t('lightTheme'):t('darkTheme'));
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',isDark?'#020202':'#ffffff');
+}
+function applyLanguage(){
+  document.documentElement.lang=t('lang');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n)});
+  document.querySelectorAll('[data-placeholder]').forEach(el=>{el.placeholder=t(el.dataset.placeholder)});
+  $('languageButton').textContent=t('languageButton');
+  updateThemeButton();
+  update();
+  buildTable();
+}
+function toggleLanguage(){lang=lang==='pt'?'en':'pt';localStorage.setItem('qrLabLang',lang);applyLanguage()}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if((document.documentElement.getAttribute('data-theme')||'system')==='system')updateThemeButton()});
+for(let i=1;i<=40;i++){const option=document.createElement('option');option.value=i;option.textContent=`V${i} — ${4*i+17}×${4*i+17}`;$('version').appendChild(option)}
+function bytes(value){return enc.encode(value).length}
+function formatBytes(n){if(n<1024)return `${n} B`;return `${(n/1024).toFixed(1)} KB`}
+function getCap(v,ec){return BYTE_CAPS[ec][v-1]}
+function bestVersion(n,ec){for(let i=1;i<=40;i++){if(getCap(i,ec)>=n)return i}return null}
+function chosenCapacity(){const ec=$('ec').value;const forced=+$('version').value;return forced?getCap(forced,ec):getCap(40,ec)}
+function maxRawFileBytes(){
+  const prefix='data:application/octet-stream;name=;base64,';
+  const safe=Math.max(0,chosenCapacity()-bytes(prefix)-32);
+  return Math.floor(safe*3/4);
+}
+function detectMode(value){
+  if(!value)return '—';
+  if(/^[0-9]+$/.test(value))return t('numeric');
+  if(/^[0-9A-Z $%*+\-./:]+$/.test(value))return t('alnum');
+  return t('byte');
+}
+function content(){return inputMode==='text'?$('textValue').value:filePayload}
+function setInputMode(mode){
+  inputMode=mode;
+  $('tabText').classList.toggle('active',mode==='text');
+  $('tabFile').classList.toggle('active',mode==='file');
+  $('textPanel').style.display=mode==='text'?'block':'none';
+  $('filePanel').style.display=mode==='file'?'block':'none';
+  update();
+}
+function update(){
+  const ec=$('ec').value;
+  const data=content();
+  const n=bytes(data);
+  const forced=+$('version').value;
+  const version=forced||bestVersion(n,ec);
+  const cap=version?getCap(version,ec):getCap(40,ec);
+  const pct=cap?Math.round((n/cap)*100):100;
+  $('mBytes').textContent=n;
+  $('mVersion').textContent=version?`V${version}`:'>V40';
+  $('mModules').textContent=version?`${4*version+17}×${4*version+17}`:'—';
+  $('mUse').textContent=`${isFinite(pct)?pct:0}%`;
+  $('bMode').textContent=`${t('mode')}: ${detectMode(data)}`;
+  $('bEc').textContent=`EC: ${ec}`;
+  $('bCap').textContent=`${t('capacity')}: ${cap?formatBytes(cap):'—'}`;
+  $('barFill').style.width=`${Math.min(100,pct||0)}%`;
+  $('barFill').style.background=pct<70?'var(--ok)':pct<92?'var(--warn)':'var(--bad)';
+  const rawMax=maxRawFileBytes();
+  $('fileMaxView').value=`${t('maxApprox')}: ${formatBytes(rawMax)} (${rawMax} bytes) — ${forced?`${t('version')} V${forced}`:t('autoUntil')} / EC ${ec}`;
+  if(!data){$('status').className='status';$('status').textContent=inputMode==='text'?t('idleText'):t('idleFile');return}
+  if(!version || (forced&&n>cap)){$('status').className='status bad';$('status').textContent=t('tooLarge')}
+  else if(pct>90){$('status').className='status warn';$('status').textContent=t('dense')}
+  else{$('status').className='status ok';$('status').textContent=t('ready')}
+}
+async function handleFile(file){
+  const max=maxRawFileBytes();
+  if(file.size>max){
+    filePayload='';selectedFileName='';
+    $('fileName').textContent=`${t('rejected')}: ${file.name} (${formatBytes(file.size)}). ${t('currentMax')}: ${formatBytes(max)}.`;
+    update();
+    return;
+  }
+  const buffer=await file.arrayBuffer();
+  const arr=new Uint8Array(buffer);
+  let binary='';
+  for(let i=0;i<arr.length;i++)binary+=String.fromCharCode(arr[i]);
+  const b64=btoa(binary);
+  filePayload=`data:${file.type||'application/octet-stream'};name=${encodeURIComponent(file.name)};base64,${b64}`;
+  selectedFileName=file.name;
+  $('fileName').textContent=`${t('selected')}: ${file.name} — ${formatBytes(file.size)} / ${formatBytes(max)}`;
+  update();
+}
+function generate(){
+  const data=content();
+  if(!data){update();return}
+  const ec=$('ec').value;
+  const forced=+$('version').value;
+  const n=bytes(data);
+  const version=forced||bestVersion(n,ec);
+  if(!version||n>getCap(version,ec)){update();return}
+  const qr=qrcode(version,ec);
+  qr.addData(data);
+  qr.make();
+  const px=+$('px').value;
+  const dark=$('dark').value;
+  const light=$('light').value;
+  const count=qr.getModuleCount();
+  const margin=4;
+  const cell=Math.max(1,Math.floor(px/(count+margin*2)));
+  const size=cell*(count+margin*2);
+  const canvas=document.createElement('canvas');
+  canvas.width=size;canvas.height=size;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle=light;ctx.fillRect(0,0,size,size);
+  ctx.fillStyle=dark;
+  for(let r=0;r<count;r++)for(let c=0;c<count;c++)if(qr.isDark(r,c))ctx.fillRect((c+margin)*cell,(r+margin)*cell,cell,cell);
+  $('qrMount').className='';
+  $('qrMount').innerHTML='';
+  $('qrMount').appendChild(canvas);
+  currentCanvas=canvas;
+  $('btnDownload').disabled=false;
+  update();
+}
+function downloadQR(){
+  if(!currentCanvas)return;
+  const a=document.createElement('a');
+  const base=inputMode==='file'&&selectedFileName?`qr_${selectedFileName}`:'qrcode';
+  a.download=`${base}.png`;
+  a.href=currentCanvas.toDataURL('image/png');
+  a.click();
+}
+function clearAll(){
+  $('textValue').value='';$('fileInput').value='';filePayload='';selectedFileName='';$('fileName').textContent='';
+  $('qrMount').className='placeholder';$('qrMount').textContent=t('preview');
+  currentCanvas=null;$('btnDownload').disabled=true;update();
+}
+function buildTable(){
+  let html=`<table><thead><tr><th>${t('version')}</th><th>${t('modules')}</th><th>L</th><th>M</th><th>Q</th><th>H</th></tr></thead><tbody>`;
+  for(let v=1;v<=40;v++)html+=`<tr><td>V${v}</td><td>${4*v+17}×${4*v+17}</td><td>${BYTE_CAPS.L[v-1]}</td><td>${BYTE_CAPS.M[v-1]}</td><td>${BYTE_CAPS.Q[v-1]}</td><td>${BYTE_CAPS.H[v-1]}</td></tr>`;
+  $('capTable').innerHTML=`${html}</tbody></table>`;
+}
+$('textValue').addEventListener('input',update);
+['ec','version','px','dark','light'].forEach(id=>$(id).addEventListener('input',update));
+$('fileInput').addEventListener('change',event=>event.target.files[0]&&handleFile(event.target.files[0]));
+['dragenter','dragover'].forEach(eventName=>$('drop').addEventListener(eventName,event=>{event.preventDefault();$('drop').classList.add('drag')}));
+['dragleave','drop'].forEach(eventName=>$('drop').addEventListener(eventName,event=>{event.preventDefault();$('drop').classList.remove('drag')}));
+$('drop').addEventListener('drop',event=>event.dataTransfer.files[0]&&handleFile(event.dataTransfer.files[0]));
+setTheme(localStorage.getItem('qrLabTheme')||'system',false);
+applyLanguage();
+</script>
+</body>
+</html>
