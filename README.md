@@ -157,6 +157,10 @@ qr-lab/
 - Validação específica para Wi-Fi, vCard e e-mail.
 - Campo dedicado para gerar QR Code de links encurtados.
 
-## Licença
+## Licença / License
 
-Este projeto pode ser adaptado livremente para estudos, portfólio, TCC, uso pessoal ou uso interno. Caso publique no GitHub, você pode adicionar uma licença como MIT, Apache 2.0 ou outra de sua preferência.
+Copyright (c) 2026 d2rk444. Todos os direitos reservados / All rights reserved.
+
+**PT-BR:** Este projeto é protegido por direitos autorais. É permitido o uso pessoal ou comercial da ferramenta. No entanto, é **estritamente proibida** a redistribuição, sublicenciamento, espelhamento do código ou venda do software e de seus derivados sem autorização prévia por escrito. Consulte o arquivo `LICENSE` para ler os termos completos.
+
+**EN:** This project is protected by copyright. Personal or commercial use of the tool is allowed. However, redistribution, sublicensing, mirroring of the code, or sale of the software and its derivatives is **strictly prohibited** without prior written authorization. See the `LICENSE` file for full terms.
